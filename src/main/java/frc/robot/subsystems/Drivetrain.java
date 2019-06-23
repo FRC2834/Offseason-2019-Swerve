@@ -23,8 +23,8 @@ public class Drivetrain extends Subsystem implements RobotMap, DashboardSender {
     // here. Call these from Commands.
 
     // Motor declaration
-    private SwerveModule fl;
     private SwerveModule fr;
+    private SwerveModule fl;
     private SwerveModule bl;
     private SwerveModule br;
 
@@ -33,8 +33,8 @@ public class Drivetrain extends Subsystem implements RobotMap, DashboardSender {
 
     public Drivetrain() {
         // Motor instantiation
-        fl = new SwerveModule(frontLeftDrive, frontLeftTurn);
         fr = new SwerveModule(frontRightDrive, frontRightTurn);
+        fl = new SwerveModule(frontLeftDrive, frontLeftTurn);
         bl = new SwerveModule(backLeftDrive, backLeftTurn);
         br = new SwerveModule(backRightDrive, backRightTurn);
         

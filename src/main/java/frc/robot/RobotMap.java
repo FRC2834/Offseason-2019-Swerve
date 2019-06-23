@@ -25,11 +25,11 @@ public interface RobotMap {
     // public static int rangefinderModule = 1;
 
     // Motor IDs
-    public static int frontLeftDrive = 0;
-    public static int frontLeftTurn = 1;
+    public static int frontRightDrive = 0;
+    public static int frontRightTurn = 1;
 
-    public static int frontRightDrive = 2;
-    public static int frontRightTurn = 3;
+    public static int frontLeftDrive = 2;
+    public static int frontLeftTurn = 3;
 
     public static int backLeftDrive = 4;
     public static int backLeftTurn = 5;
