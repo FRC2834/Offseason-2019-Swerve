@@ -70,7 +70,16 @@ public class SwerveModule extends Subsystem implements RobotMap {
     public double getBaseLength() { return baseLength; }
     public double getBaseWidth() { return baseWidth; }
 
-
+    /**
+     * 
+     * @param FWD Joystick y input
+     * @param STR Joystick x input
+     * @param RCW Joystick 2 x input
+     * @param gyroAngle Gyro angle used for field-centric swerve drive
+     * @param baseLength Length of wheelbase
+     * @param baseWidth Width of wheelbase
+     * @return Returns a 2d array containing the speed and angle for each module
+     */
     public static double[][] calculate(double FWD, double STR, double RCW, double gyroAngle, double baseLength, double baseWidth) {
         // Makes the command field-centric
         double temp = FWD * Math.cos(gyroAngle) + STR * Math.sin(gyroAngle);
@@ -96,7 +105,25 @@ public class SwerveModule extends Subsystem implements RobotMap {
         double bl_wa = Math.atan2(A, D) * 180 / Math.PI;
         double br_wa = Math.atan2(A, C) * 180 / Math.PI;
 
-        double[][] output = new double[][]{
+        // Normalize wheel speeds
+        double max = fr_ws;
+
+        if(fl_ws > max) {
+            max = fl_ws;
+        } else if(bl_ws > max) {
+            max = bl_ws;
+        } else if(br_ws > max) {
+            max = br_ws;
+        }
+
+        if(max > 1) {
+            fr_ws /= max;
+            fl_ws /= max;
+            bl_ws /= max;
+            br_ws /= max;
+        }
+
+        double[][] output = new double[][] {
             {fr_ws, fr_wa}, 
             {fl_ws, fl_wa},
             {bl_ws, bl_wa}, 
