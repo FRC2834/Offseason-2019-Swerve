@@ -40,6 +40,11 @@ public class Drivetrain extends Subsystem implements RobotMap, DashboardSender {
         
         // Gyro instantiation
         gyro = new AHRS(SerialPort.Port.kMXP);
+        gyro.zeroYaw();
+    }
+
+    public void zeroGyro() {
+        gyro.zeroYaw();
     }
 
     @Override
