@@ -25,7 +25,7 @@ public interface RobotMap {
     // public static int rangefinderModule = 1;
 
     // Motor IDs
-    public static int frontRightDrive = 0;
+    public static int frontRightDrive = 5;
     public static int frontRightTurn = 1;
 
     public static int frontLeftDrive = 2;
@@ -54,11 +54,22 @@ public interface RobotMap {
 	 * set to zero to skip waiting for confirmation, set to nonzero to wait and
 	 * report to DS if action fails.
 	 */
-	public static final int kTimeoutMs = 30;
+    public static final int kTimeoutMs = 30;
+
+    static final double nominalTurnOutputPercent = 0.75;
+    static final int encoderTickAtNominal = 803;
+    
+    static final double fGain = (nominalTurnOutputPercent * 1023) / encoderTickAtNominal;
+
+    static final double pGain = 0.2;
+    static final double error = 90;
+    static final double pTerm = (pGain * 1023) / error;
+
+    static final double dGain = 10*pTerm;
 
 	/**
 	 * Gains used in Motion Magic, to be adjusted accordingly
      * Gains(kp, ki, kd, kf, izone, peak output);
      */
-    static final Gains kGains = new Gains(0.2, 0.0, 0.0, 0.2, 0, 1.0);
+    static final Gains kGains = new Gains(pTerm, 0.001, dGain, fGain, 100, 0.0);
 }

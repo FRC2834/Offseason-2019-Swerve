@@ -43,6 +43,9 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
     private double baseLength;
     private double baseWidth;
 
+    // Starting position of module
+    private double moduleOffset;
+
     /**
      * Constructor for a swerve module
      * 
@@ -57,12 +60,17 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
 
         // Reset the encoder settings
         turn.configFactoryDefault();
+
+        // Get starting angle of module
+        turn.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
+        moduleOffset = turn.getSelectedSensorPosition();
+        
         // Select encoder to use
         turn.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
 
         // Set sensor and motor direction
-        turn.setSensorPhase(true);
-        turn.setInverted(false);
+        turn.setSensorPhase(false);
+        turn.setInverted(true);
 
         /* Set relevant frame periods to be at least as fast as periodic rate */
 		turn.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
@@ -82,8 +90,8 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
 		turn.config_kD(kSlotIdx, kGains.kD, kTimeoutMs);
 
 		/* Set acceleration and vcruise velocity - see documentation */
-		turn.configMotionCruiseVelocity(15000, kTimeoutMs);
-		turn.configMotionAcceleration(6000, kTimeoutMs);
+		turn.configMotionCruiseVelocity(803, kTimeoutMs);
+		turn.configMotionAcceleration(803, kTimeoutMs);
 
 		/* Zero the sensor */
         turn.setSelectedSensorPosition(0, kPIDLoopIdx, kTimeoutMs);
@@ -171,9 +179,78 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
         return output;
     }
 
-    public void move(double speed, double angle) {
-        drive.set(speed);
-        turn.set(ControlMode.MotionMagic, angle);
+    public void move(double speed, double targetAngle) {
+
+        // Derive the alternate target angle
+        double targetAngle2 = targetAngle + 180;
+
+        // Make the angle input from the -180 - 180 range to the 0 - 360 range
+        if(targetAngle < 0) {
+            targetAngle += 360;
+        }
+
+        // Get current angle and normalize it to a 0 - 360 range
+        double currentAngle = turn.getSelectedSensorPosition() * (360 / turnEncoderTicks);
+        while(currentAngle > 360) {
+            currentAngle -= 360;
+        }
+        while(currentAngle < 0) {
+            currentAngle += 360;
+        }
+        
+        double delta1 = 0;
+        double delta2 = 0;
+        if(currentAngle > targetAngle) {
+            // cw delta
+            delta1 = 360 - currentAngle + targetAngle;
+            // ccw delta
+            delta2 = -(currentAngle - targetAngle);  
+        } else if(targetAngle > currentAngle) {
+            // cw delta
+            delta1 = targetAngle - currentAngle;
+            // ccw delta
+            delta2 = -(360 - currentAngle + targetAngle);
+        }
+
+        double delta = 0;
+        if(Math.abs(delta1) < Math.abs(delta2)) {
+            delta = delta1;
+        } else {
+            delta = delta2;
+        }
+
+        double delta3 = 0;
+        double delta4 = 0;
+        if(currentAngle > targetAngle2) {
+            // cw delta
+            delta3 = 360 - currentAngle + targetAngle2;
+            // ccw delta
+            delta4 = -(currentAngle - targetAngle2); 
+        } else if(targetAngle2 > currentAngle) {
+            // cw delta
+            delta3 = targetAngle2 - currentAngle;
+            // ccw delta
+            delta4 = -(360 - currentAngle + targetAngle2);
+        }
+
+        double altDelta = 0;
+        if(Math.abs(delta3) < Math.abs(delta4)) {
+            altDelta = delta3;
+        } else {
+            altDelta = delta4;
+        }
+
+        if(Math.abs(delta) < Math.abs(altDelta)) {
+            double ticksDelta = delta * (turnEncoderTicks / 360);
+            turn.set(ControlMode.MotionMagic, turn.getSelectedSensorPosition() + ticksDelta);
+            drive.set(speed);
+        } else if(Math.abs(altDelta) < Math.abs(delta)) {
+            double ticksDelta = altDelta * (turnEncoderTicks / 360);
+            turn.set(ControlMode.MotionMagic, turn.getSelectedSensorPosition() + ticksDelta);
+            drive.set(-speed);
+        } else {
+            turn.set(ControlMode.MotionMagic, turn.getSelectedSensorPosition());
+        }
     }
 
     @Override

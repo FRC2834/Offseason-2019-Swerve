@@ -10,6 +10,7 @@ package frc.robot.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 
 import frc.robot.RobotMap;
+import frc.robot.commands.Drive;
 import frc.robot.DashboardSender;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -23,7 +24,7 @@ public class Drivetrain extends Subsystem implements RobotMap, DashboardSender {
     // here. Call these from Commands.
 
     // Motor declaration
-    private SwerveModule fr;
+    public SwerveModule fr;
     private SwerveModule fl;
     private SwerveModule bl;
     private SwerveModule br;
@@ -37,6 +38,8 @@ public class Drivetrain extends Subsystem implements RobotMap, DashboardSender {
         fl = new SwerveModule(frontLeftDrive, frontLeftTurn);
         bl = new SwerveModule(backLeftDrive, backLeftTurn);
         br = new SwerveModule(backRightDrive, backRightTurn);
+
+        fr.configureModule(40, 4093, 14.5, 14.5);
         
         // Gyro instantiation
         gyro = new AHRS(SerialPort.Port.kMXP);
@@ -47,10 +50,19 @@ public class Drivetrain extends Subsystem implements RobotMap, DashboardSender {
         gyro.zeroYaw();
     }
 
+    public double[][] getMotorInputs() {
+        return null;
+    }
+
+    public void controlModule(SwerveModule module, double speed, double angle) {
+        module.move(speed, angle);
+    }
+
     @Override
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.
         // setDefaultCommand(new MySpecialCommand());
+        setDefaultCommand(new Drive());
     }
 
 	@Override
