@@ -16,6 +16,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.DashboardSender;
 import frc.robot.RobotMap;
 
@@ -30,7 +31,7 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
 
     // Motors
     private CANSparkMax drive;
-    private TalonSRX turn;
+    public TalonSRX turn;
     
     // Drive Encoder
     public CANEncoder driveEncoder;
@@ -39,20 +40,21 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
     private double driveEncoderTicks;
     private double turnEncoderTicks;
 
+    // Module Offset
+    public double moduleOffset;
+
     // Wheelbase dimensions
     private double baseLength;
     private double baseWidth;
-
-    // Starting position of module
-    private double moduleOffset;
 
     /**
      * Constructor for a swerve module
      * 
      * @param driveID The ID for the drive motor
      * @param turnID The ID for the steering motor
+     * @param moduleZero Value of analog encoder at module default position
      */
-    public SwerveModule(int driveID, int turnID) {
+    public SwerveModule(int driveID, int turnID, int moduleZero) {
         drive = new CANSparkMax(driveID, MotorType.kBrushless);
         turn = new TalonSRX(turnID);
 
@@ -60,17 +62,13 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
 
         // Reset the encoder settings
         turn.configFactoryDefault();
-
-        // Get starting angle of module
-        turn.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
-        moduleOffset = turn.getSelectedSensorPosition();
         
         // Select encoder to use
         turn.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
 
         // Set sensor and motor direction
-        turn.setSensorPhase(false);
-        turn.setInverted(true);
+        turn.setSensorPhase(true);
+        turn.setInverted(false);
 
         /* Set relevant frame periods to be at least as fast as periodic rate */
 		turn.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
@@ -93,8 +91,10 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
 		turn.configMotionCruiseVelocity(803, kTimeoutMs);
 		turn.configMotionAcceleration(803, kTimeoutMs);
 
-		/* Zero the sensor */
+        /* Zero the sensor */
         turn.setSelectedSensorPosition(0, kPIDLoopIdx, kTimeoutMs);
+
+        
     }
 
     /**
@@ -128,8 +128,8 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
      */
     public static double[][] calculate(double FWD, double STR, double RCW, double gyroAngle, double baseLength, double baseWidth) {
         // Makes the command field-centric
-        double temp = FWD * Math.cos(gyroAngle) + STR * Math.sin(gyroAngle);
-        STR = -FWD * Math.sin(gyroAngle) + STR * Math.cos(gyroAngle);
+        double temp = FWD * Math.cos(Math.toRadians(gyroAngle)) + STR * Math.sin(Math.toRadians(gyroAngle));
+        STR = -FWD * Math.sin(Math.toRadians(gyroAngle)) + STR * Math.cos(Math.toRadians(gyroAngle));
         FWD = temp;
 
         double R = Math.sqrt(Math.pow(baseLength, 2) + Math.pow(baseWidth, 2));
@@ -261,7 +261,6 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
 
     @Override
     public void dashboardInit() {
-
     }
 
     @Override

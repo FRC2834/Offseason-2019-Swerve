@@ -23,31 +23,36 @@ public class Drive extends Command {
   @Override
   protected void initialize() {
   }
+  
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
     double FWD = Robot.m_oi.driver.getRawAxis(1);
-    if(Math.abs(FWD) < 0.1) {
+    if(Math.abs(FWD) < 0.3) {
       FWD = 0;
     }
     double STR = Robot.m_oi.driver.getRawAxis(0);
-    if(Math.abs(STR) < 0.1) {
+    if(Math.abs(STR) < 0.3) {
       STR = 0;
     }
     double RCW = Robot.m_oi.driver.getRawAxis(4);
-    if(Math.abs(RCW) < 0.1) {
+    if(Math.abs(RCW) < 0.3) {
       RCW = 0;
     }
 
-    double[][] vectors = SwerveModule.calculate(-FWD, 
-    STR, 
-    RCW, 
-    0.0, 
+    double[][] vectors = SwerveModule.calculate(FWD*0.5, 
+    -STR*0.5, 
+    -RCW, 
+    Robot.drivetrain.gyro.getYaw(), 
     Robot.drivetrain.fr.getBaseLength(), 
     Robot.drivetrain.fr.getBaseWidth());
 
+
     Robot.drivetrain.controlModule(Robot.drivetrain.fr, vectors[0][0], vectors[0][1]);
+    Robot.drivetrain.controlModule(Robot.drivetrain.fl, vectors[1][0], vectors[1][1]);
+    Robot.drivetrain.controlModule(Robot.drivetrain.bl, vectors[2][0], vectors[2][1]);
+    Robot.drivetrain.controlModule(Robot.drivetrain.br, vectors[3][0], vectors[3][1]);
   }
 
   // Make this return true when this Command no longer needs to run execute()

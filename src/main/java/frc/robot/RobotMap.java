@@ -25,17 +25,25 @@ public interface RobotMap {
     // public static int rangefinderModule = 1;
 
     // Motor IDs
-    public static int frontRightDrive = 5;
-    public static int frontRightTurn = 1;
+    public static int frontRightDrive = 1;
+    public static int frontRightTurn = 2;
 
-    public static int frontLeftDrive = 2;
-    public static int frontLeftTurn = 3;
+    public static int frontLeftDrive = 3;
+    public static int frontLeftTurn = 4;
 
-    public static int backLeftDrive = 4;
-    public static int backLeftTurn = 5;
+    public static int backLeftDrive = 5;
+    public static int backLeftTurn = 6;
 
-    public static int backRightDrive = 6;
-    public static int backRightTurn = 7;
+    public static int backRightDrive = 7;
+    public static int backRightTurn = 8;
+
+    // Motor Encoder Ticks
+    public static double DRIVE_ENCODER_TICKS = 40.0;
+    public static double TURN_ENCODER_TICKS = 4096.0;
+
+    // Chassis Dimensions
+    public static double TRACK_WIDTH = 22.625;
+    public static double WHEEL_BASE = 22.625;
 
     /**
 	 * Which PID slot to pull gains from. Starting 2018, you can choose from

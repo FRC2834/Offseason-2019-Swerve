@@ -14,6 +14,7 @@ import frc.robot.commands.Drive;
 import frc.robot.DashboardSender;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SerialPort;
 
 /**
@@ -25,21 +26,24 @@ public class Drivetrain extends Subsystem implements RobotMap, DashboardSender {
 
     // Motor declaration
     public SwerveModule fr;
-    private SwerveModule fl;
-    private SwerveModule bl;
-    private SwerveModule br;
+    public SwerveModule fl;
+    public SwerveModule bl;
+    public SwerveModule br;
 
     // Gyro declaration
     public AHRS gyro;
 
     public Drivetrain() {
         // Motor instantiation
-        fr = new SwerveModule(frontRightDrive, frontRightTurn);
-        fl = new SwerveModule(frontLeftDrive, frontLeftTurn);
-        bl = new SwerveModule(backLeftDrive, backLeftTurn);
-        br = new SwerveModule(backRightDrive, backRightTurn);
+        fr = new SwerveModule(frontRightDrive, frontRightTurn, 256);
+        fl = new SwerveModule(frontLeftDrive, frontLeftTurn, 1846);
+        bl = new SwerveModule(backLeftDrive, backLeftTurn, 3981);
+        br = new SwerveModule(backRightDrive, backRightTurn, 3466);
 
-        fr.configureModule(40, 4093, 14.5, 14.5);
+        fr.configureModule(DRIVE_ENCODER_TICKS, TURN_ENCODER_TICKS, WHEEL_BASE, TRACK_WIDTH);
+        fl.configureModule(DRIVE_ENCODER_TICKS, TURN_ENCODER_TICKS, WHEEL_BASE, TRACK_WIDTH);
+        br.configureModule(DRIVE_ENCODER_TICKS, TURN_ENCODER_TICKS, WHEEL_BASE, TRACK_WIDTH);
+        bl.configureModule(DRIVE_ENCODER_TICKS, TURN_ENCODER_TICKS, WHEEL_BASE, TRACK_WIDTH);
         
         // Gyro instantiation
         gyro = new AHRS(SerialPort.Port.kMXP);
@@ -67,11 +71,11 @@ public class Drivetrain extends Subsystem implements RobotMap, DashboardSender {
 
 	@Override
 	public void dashboardInit() {
-		
+        SmartDashboard.putNumber("gyro yaw", gyro.getYaw());
 	}
 
 	@Override
 	public void dashboardPeriodic() {
-		
+        SmartDashboard.putNumber("gyro yaw", gyro.getYaw());
 	}
 }
