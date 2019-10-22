@@ -26,15 +26,15 @@ public interface RobotMap {
 
     // Motor IDs
     public static int frontRightDrive = 1;
-    public static int frontRightTurn = 2;
+    public static int frontRightTurn = 5;
 
-    public static int frontLeftDrive = 3;
-    public static int frontLeftTurn = 4;
+    public static int frontLeftDrive = 2;
+    public static int frontLeftTurn = 6;
 
-    public static int backLeftDrive = 5;
-    public static int backLeftTurn = 6;
+    public static int backLeftDrive = 3;
+    public static int backLeftTurn = 7;
 
-    public static int backRightDrive = 7;
+    public static int backRightDrive = 4;
     public static int backRightTurn = 8;
 
     // Motor Encoder Ticks
@@ -64,13 +64,22 @@ public interface RobotMap {
 	 */
     public static final int kTimeoutMs = 30;
 
-    static final double nominalTurnOutputPercent = 0.75;
-    static final int encoderTickAtNominal = 803;
+    // static final double nominalTurnOutputPercent = 0.75;
+    // static final int encoderTickAtNominal = 803;
+
+    static final double nominalTurnOutputPercent = 0.95;
+    static final int encoderTickAtNominal = 1245;
     
     static final double fGain = (nominalTurnOutputPercent * 1023) / encoderTickAtNominal;
 
-    static final double pGain = 0.2;
-    static final double error = 90;
+    // static final double pGain = 0.2;
+    // static final double error = 90;
+    // static final double pTerm = (pGain * 1023) / error;
+
+    // static final double dGain = 10*pTerm;
+
+    static final double pGain = 0.07;
+    static final double error = 193;
     static final double pTerm = (pGain * 1023) / error;
 
     static final double dGain = 10*pTerm;
@@ -79,5 +88,5 @@ public interface RobotMap {
 	 * Gains used in Motion Magic, to be adjusted accordingly
      * Gains(kp, ki, kd, kf, izone, peak output);
      */
-    static final Gains kGains = new Gains(pTerm, 0.001, dGain, fGain, 100, 0.0);
+    static final Gains kGains = new Gains(pTerm, 0.001, dGain, fGain, 120, 0.0);
 }

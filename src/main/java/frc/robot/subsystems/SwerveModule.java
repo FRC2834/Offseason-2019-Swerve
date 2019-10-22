@@ -85,11 +85,12 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
 		turn.config_kF(kSlotIdx, kGains.kF, kTimeoutMs);
 		turn.config_kP(kSlotIdx, kGains.kP, kTimeoutMs);
 		turn.config_kI(kSlotIdx, kGains.kI, kTimeoutMs);
-		turn.config_kD(kSlotIdx, kGains.kD, kTimeoutMs);
+        turn.config_kD(kSlotIdx, kGains.kD, kTimeoutMs);
+        turn.config_IntegralZone(kSlotIdx, kGains.kIzone, kTimeoutMs);
 
 		/* Set acceleration and vcruise velocity - see documentation */
-		turn.configMotionCruiseVelocity(803, kTimeoutMs);
-		turn.configMotionAcceleration(803, kTimeoutMs);
+		turn.configMotionCruiseVelocity(1245, kTimeoutMs);
+		turn.configMotionAcceleration(3735, kTimeoutMs);
 
         /* Zero the sensor */
         turn.setSelectedSensorPosition(0, kPIDLoopIdx, kTimeoutMs);
@@ -209,7 +210,7 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
             // cw delta
             delta1 = targetAngle - currentAngle;
             // ccw delta
-            delta2 = -(360 - currentAngle + targetAngle);
+            delta2 = -(360 - targetAngle + currentAngle);
         }
 
         double delta = 0;
@@ -230,7 +231,7 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
             // cw delta
             delta3 = targetAngle2 - currentAngle;
             // ccw delta
-            delta4 = -(360 - currentAngle + targetAngle2);
+            delta4 = -(360 - targetAngle2 + currentAngle);
         }
 
         double altDelta = 0;
@@ -243,14 +244,26 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
         if(Math.abs(delta) < Math.abs(altDelta)) {
             double ticksDelta = delta * (turnEncoderTicks / 360);
             turn.set(ControlMode.MotionMagic, turn.getSelectedSensorPosition() + ticksDelta);
+            SmartDashboard.putNumber("delta", delta);
             drive.set(speed);
         } else if(Math.abs(altDelta) < Math.abs(delta)) {
             double ticksDelta = altDelta * (turnEncoderTicks / 360);
             turn.set(ControlMode.MotionMagic, turn.getSelectedSensorPosition() + ticksDelta);
+            SmartDashboard.putNumber("delta", altDelta);
             drive.set(-speed);
         } else {
             turn.set(ControlMode.MotionMagic, turn.getSelectedSensorPosition());
         }
+
+        SmartDashboard.putNumber("Delta1", delta1);
+        SmartDashboard.putNumber("Delta2", delta2);
+        SmartDashboard.putNumber("Delta3", delta3);
+        SmartDashboard.putNumber("Delta4", delta4);
+        SmartDashboard.putNumber("Current Angle", currentAngle);
+        SmartDashboard.putNumber("Target Angle", targetAngle);
+        SmartDashboard.putNumber("Target Angle2", targetAngle2);
+        SmartDashboard.putNumber("C + Target Angle", 360 - currentAngle + targetAngle);
+        SmartDashboard.putNumber("C + Target Angle2", 360 - currentAngle + targetAngle2);
     }
 
     @Override

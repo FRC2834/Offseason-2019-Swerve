@@ -41,9 +41,9 @@ public class Drive extends Command {
       RCW = 0;
     }
 
-    double[][] vectors = SwerveModule.calculate(FWD*0.5, 
-    -STR*0.5, 
-    -RCW, 
+    double[][] vectors = SwerveModule.calculate(-FWD*0.5, 
+    STR*0.5, 
+    RCW*0.5, 
     Robot.drivetrain.gyro.getYaw(), 
     Robot.drivetrain.fr.getBaseLength(), 
     Robot.drivetrain.fr.getBaseWidth());
