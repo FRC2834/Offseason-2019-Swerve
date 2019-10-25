@@ -116,6 +116,11 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
     public double getBaseLength() { return baseLength; }
     public double getBaseWidth() { return baseWidth; }
 
+    /* Zero the relative encoder */
+    public void zeroRelative() {
+        turn.setSelectedSensorPosition(0, kPIDLoopIdx, kTimeoutMs);
+    }
+
     /**
      * Calculates module angles and speed
      * 
@@ -245,12 +250,16 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
             double ticksDelta = delta * (turnEncoderTicks / 360);
             turn.set(ControlMode.MotionMagic, turn.getSelectedSensorPosition() + ticksDelta);
             SmartDashboard.putNumber("delta", delta);
-            drive.set(speed);
+            if(turn.getClosedLoopError(kPIDLoopIdx) < 50) {
+                drive.set(speed);
+            }
         } else if(Math.abs(altDelta) < Math.abs(delta)) {
             double ticksDelta = altDelta * (turnEncoderTicks / 360);
             turn.set(ControlMode.MotionMagic, turn.getSelectedSensorPosition() + ticksDelta);
             SmartDashboard.putNumber("delta", altDelta);
-            drive.set(-speed);
+            if(turn.getClosedLoopError(kPIDLoopIdx) < 50) {
+                drive.set(-speed);
+            }
         } else {
             turn.set(ControlMode.MotionMagic, turn.getSelectedSensorPosition());
         }

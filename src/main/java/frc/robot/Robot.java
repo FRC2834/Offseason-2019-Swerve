@@ -118,6 +118,11 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
+
+        drivetrain.fr.zeroRelative();
+        drivetrain.fl.zeroRelative();
+        drivetrain.bl.zeroRelative();
+        drivetrain.br.zeroRelative();
     }
 
     /**

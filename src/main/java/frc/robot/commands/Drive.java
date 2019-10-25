@@ -31,10 +31,14 @@ public class Drive extends Command {
     double FWD = Robot.m_oi.driver.getRawAxis(1);
     if(Math.abs(FWD) < 0.3) {
       FWD = 0;
+    } else {
+      FWD = Math.pow(FWD, 3);
     }
     double STR = Robot.m_oi.driver.getRawAxis(0);
     if(Math.abs(STR) < 0.3) {
       STR = 0;
+    } else {
+      STR = Math.pow(STR, 3);
     }
     double RCW = Robot.m_oi.driver.getRawAxis(4);
     if(Math.abs(RCW) < 0.3) {
