@@ -30,7 +30,7 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
     // here. Call these from Commands.
 
     // Motors
-    private CANSparkMax drive;
+    public CANSparkMax drive;
     public TalonSRX turn;
     
     // Drive Encoder
@@ -42,6 +42,12 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
 
     // Module Offset
     public double moduleOffset;
+
+    // Module Zeroed?
+    public boolean zeroed;
+
+    //
+    private double moduleZero;
 
     // Wheelbase dimensions
     private double baseLength;
@@ -60,11 +66,17 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
 
         driveEncoder = new CANEncoder(drive);
 
+        drive.setOpenLoopRampRate(0.5);
+        drive.setSmartCurrentLimit(50);
+
+        this.moduleZero = moduleZero;
+        zeroed = false;
+
         // Reset the encoder settings
         turn.configFactoryDefault();
         
         // Select encoder to use
-        turn.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
+        turn.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, kPIDLoopIdx, kTimeoutMs);
 
         // Set sensor and motor direction
         turn.setSensorPhase(true);
@@ -90,10 +102,10 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
 
 		/* Set acceleration and vcruise velocity - see documentation */
 		turn.configMotionCruiseVelocity(1245, kTimeoutMs);
-		turn.configMotionAcceleration(3735, kTimeoutMs);
+        turn.configMotionAcceleration(3735, kTimeoutMs);
 
         /* Zero the sensor */
-        turn.setSelectedSensorPosition(0, kPIDLoopIdx, kTimeoutMs);
+        //turn.setSelectedSensorPosition(0, kPIDLoopIdx, kTimeoutMs);
 
         
     }
@@ -116,9 +128,18 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
     public double getBaseLength() { return baseLength; }
     public double getBaseWidth() { return baseWidth; }
 
-    /* Zero the relative encoder */
-    public void zeroRelative() {
-        turn.setSelectedSensorPosition(0, kPIDLoopIdx, kTimeoutMs);
+    /* Zero the encoder */
+    // public void zeroEncoder() {
+    //     turn.setSelectedSensorPosition(0, kPIDLoopIdx, kTimeoutMs);
+    // }
+
+    public void calculateOffset() {
+        moduleOffset = turn.getSelectedSensorPosition() - moduleZero;
+    }
+
+    // Get encoder position
+    public int getEncoderPosition() {
+        return turn.getSelectedSensorPosition();
     }
 
     /**
@@ -185,6 +206,28 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
         return output;
     }
 
+    public double getNearestCoterminalZero(int currentPosition, double moduleZero) {
+        double coterminalZero = moduleZero;
+        if(currentPosition > 0) {
+            while(coterminalZero < currentPosition) {
+                coterminalZero += turnEncoderTicks;
+            }
+        } else if(currentPosition < 0) {
+            while(coterminalZero > currentPosition) {
+                coterminalZero -= turnEncoderTicks;
+            }
+        }
+        return coterminalZero;
+    }
+
+    public void zeroModule() {
+        zeroed = false;
+        do {
+            turn.set(ControlMode.MotionMagic, getNearestCoterminalZero(turn.getSelectedSensorPosition(), moduleZero));
+        } while(turn.getClosedLoopError(kPIDLoopIdx) > 5);
+        zeroed = true;
+    }
+
     public void move(double speed, double targetAngle) {
 
         // Derive the alternate target angle
@@ -196,7 +239,7 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
         }
 
         // Get current angle and normalize it to a 0 - 360 range
-        double currentAngle = turn.getSelectedSensorPosition() * (360 / turnEncoderTicks);
+        double currentAngle = (turn.getSelectedSensorPosition() - moduleZero) * (360 / turnEncoderTicks);
         while(currentAngle > 360) {
             currentAngle -= 360;
         }
@@ -246,22 +289,27 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
             altDelta = delta4;
         }
 
-        if(Math.abs(delta) < Math.abs(altDelta)) {
-            double ticksDelta = delta * (turnEncoderTicks / 360);
-            turn.set(ControlMode.MotionMagic, turn.getSelectedSensorPosition() + ticksDelta);
-            SmartDashboard.putNumber("delta", delta);
-            if(turn.getClosedLoopError(kPIDLoopIdx) < 50) {
-                drive.set(speed);
+        if(true) {
+            if(Math.abs(delta) < Math.abs(altDelta)) {
+                double ticksDelta = delta * (turnEncoderTicks / 360);
+                turn.set(ControlMode.MotionMagic, turn.getSelectedSensorPosition() + ticksDelta);
+                //turn.set(ControlMode.MotionMagic, moduleZero);
+                SmartDashboard.putNumber("delta", delta);
+                if(turn.getClosedLoopError(kPIDLoopIdx) < 50) {
+                    drive.set(speed);
+                }
+            } else if(Math.abs(altDelta) < Math.abs(delta)) {
+                double ticksDelta = altDelta * (turnEncoderTicks / 360);
+                turn.set(ControlMode.MotionMagic, turn.getSelectedSensorPosition() + ticksDelta);
+                //turn.set(ControlMode.MotionMagic, moduleZero);
+                SmartDashboard.putNumber("delta", altDelta);
+                if(turn.getClosedLoopError(kPIDLoopIdx) < 50) {
+                    drive.set(-speed);
+                }
+            } else {
+                turn.set(ControlMode.MotionMagic, turn.getSelectedSensorPosition());
+                //turn.set(ControlMode.MotionMagic, moduleZero);
             }
-        } else if(Math.abs(altDelta) < Math.abs(delta)) {
-            double ticksDelta = altDelta * (turnEncoderTicks / 360);
-            turn.set(ControlMode.MotionMagic, turn.getSelectedSensorPosition() + ticksDelta);
-            SmartDashboard.putNumber("delta", altDelta);
-            if(turn.getClosedLoopError(kPIDLoopIdx) < 50) {
-                drive.set(-speed);
-            }
-        } else {
-            turn.set(ControlMode.MotionMagic, turn.getSelectedSensorPosition());
         }
 
         SmartDashboard.putNumber("Delta1", delta1);

@@ -32,22 +32,30 @@ public class Drive extends Command {
     if(Math.abs(FWD) < 0.3) {
       FWD = 0;
     } else {
-      FWD = Math.pow(FWD, 3);
+      if(FWD > 0) {
+        FWD = Math.pow(FWD, 2);
+      } else {
+        FWD = -Math.pow(FWD, 2);
+      }
     }
     double STR = Robot.m_oi.driver.getRawAxis(0);
     if(Math.abs(STR) < 0.3) {
       STR = 0;
     } else {
-      STR = Math.pow(STR, 3);
+      if(STR > 0) {
+        STR = Math.pow(STR, 2);
+      } else {
+        STR = -Math.pow(STR, 2);
+      }
     }
     double RCW = Robot.m_oi.driver.getRawAxis(4);
     if(Math.abs(RCW) < 0.3) {
       RCW = 0;
     }
 
-    double[][] vectors = SwerveModule.calculate(-FWD*0.5, 
-    STR*0.5, 
-    RCW*0.5, 
+    double[][] vectors = SwerveModule.calculate(-FWD*0.95, 
+    STR*0.95, 
+    RCW*0.95, 
     Robot.drivetrain.gyro.getYaw(), 
     Robot.drivetrain.fr.getBaseLength(), 
     Robot.drivetrain.fr.getBaseWidth());

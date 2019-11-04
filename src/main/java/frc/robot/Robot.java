@@ -42,6 +42,11 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Auto mode", m_chooser);
 
         DashboardSender.sendInitData();
+
+        drivetrain.fr.calculateOffset();
+        drivetrain.fl.calculateOffset();
+        drivetrain.bl.calculateOffset();
+        drivetrain.br.calculateOffset();
     }
 
     /**
@@ -119,10 +124,33 @@ public class Robot extends TimedRobot {
             m_autonomousCommand.cancel();
         }
 
-        drivetrain.fr.zeroRelative();
-        drivetrain.fl.zeroRelative();
-        drivetrain.bl.zeroRelative();
-        drivetrain.br.zeroRelative();
+        // drivetrain.fr.zeroEncoder();
+        // drivetrain.fl.zeroEncoder();
+        // drivetrain.bl.zeroEncoder();
+        // drivetrain.br.zeroEncoder();
+
+        drivetrain.zeroGyro();
+
+        drivetrain.fr.calculateOffset();
+        drivetrain.fl.calculateOffset();
+        drivetrain.bl.calculateOffset();
+        drivetrain.br.calculateOffset();
+
+        drivetrain.fr.drive.set(0);
+        drivetrain.fl.drive.set(0);
+        drivetrain.bl.drive.set(0);
+        drivetrain.br.drive.set(0);
+
+        drivetrain.fr.zeroed = false;
+        drivetrain.fl.zeroed = false;
+        drivetrain.bl.zeroed = false;
+        drivetrain.br.zeroed = false;
+        SmartDashboard.putBoolean("zeroed", false);
+        drivetrain.fr.zeroModule();
+        drivetrain.fl.zeroModule();
+        drivetrain.bl.zeroModule();
+        drivetrain.br.zeroModule();
+        SmartDashboard.putBoolean("zeroed", true);
     }
 
     /**

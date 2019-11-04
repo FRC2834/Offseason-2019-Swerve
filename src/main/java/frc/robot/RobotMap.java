@@ -78,7 +78,7 @@ public interface RobotMap {
 
     // static final double dGain = 10*pTerm;
 
-    static final double pGain = 0.07;
+    static final double pGain = 0.2;
     static final double error = 193;
     static final double pTerm = (pGain * 1023) / error;
 
@@ -88,5 +88,5 @@ public interface RobotMap {
 	 * Gains used in Motion Magic, to be adjusted accordingly
      * Gains(kp, ki, kd, kf, izone, peak output);
      */
-    static final Gains kGains = new Gains(pTerm, 0.001, dGain, fGain, 120, 0.0);
+    static final Gains kGains = new Gains(pTerm, 0.005, dGain, fGain, 120, 0.0);
 }

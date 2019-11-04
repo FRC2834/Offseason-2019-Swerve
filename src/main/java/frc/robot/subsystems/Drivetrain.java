@@ -35,10 +35,10 @@ public class Drivetrain extends Subsystem implements RobotMap, DashboardSender {
 
     public Drivetrain() {
         // Motor instantiation
-        fr = new SwerveModule(frontRightDrive, frontRightTurn, 256);
-        fl = new SwerveModule(frontLeftDrive, frontLeftTurn, 1846);
-        bl = new SwerveModule(backLeftDrive, backLeftTurn, 3981);
-        br = new SwerveModule(backRightDrive, backRightTurn, 3466);
+        fr = new SwerveModule(frontRightDrive, frontRightTurn, -3868);
+        fl = new SwerveModule(frontLeftDrive, frontLeftTurn, -279);
+        bl = new SwerveModule(backLeftDrive, backLeftTurn, -3222);
+        br = new SwerveModule(backRightDrive, backRightTurn, -1546);
 
         fr.configureModule(DRIVE_ENCODER_TICKS, TURN_ENCODER_TICKS, WHEEL_BASE, TRACK_WIDTH);
         fl.configureModule(DRIVE_ENCODER_TICKS, TURN_ENCODER_TICKS, WHEEL_BASE, TRACK_WIDTH);
@@ -72,10 +72,29 @@ public class Drivetrain extends Subsystem implements RobotMap, DashboardSender {
 	@Override
 	public void dashboardInit() {
         SmartDashboard.putNumber("gyro yaw", gyro.getYaw());
+
+        SmartDashboard.putNumber("fr encoder", fr.getEncoderPosition());
+        SmartDashboard.putNumber("fl encoder", fl.getEncoderPosition());
+        SmartDashboard.putNumber("bl encoder", bl.getEncoderPosition());
+        SmartDashboard.putNumber("br encoder", br.getEncoderPosition());
+
+        SmartDashboard.putNumber("fr offset", fr.moduleOffset);
+        SmartDashboard.putNumber("fl offset", fl.moduleOffset);
+        SmartDashboard.putNumber("bl offset", bl.moduleOffset);
+        SmartDashboard.putNumber("br offset", br.moduleOffset);
 	}
 
 	@Override
 	public void dashboardPeriodic() {
         SmartDashboard.putNumber("gyro yaw", gyro.getYaw());
+        SmartDashboard.putNumber("fr encoder", fr.getEncoderPosition());
+        SmartDashboard.putNumber("fl encoder", fl.getEncoderPosition());
+        SmartDashboard.putNumber("bl encoder", bl.getEncoderPosition());
+        SmartDashboard.putNumber("br encoder", br.getEncoderPosition());
+
+        SmartDashboard.putNumber("fr offset", fr.moduleOffset);
+        SmartDashboard.putNumber("fl offset", fl.moduleOffset);
+        SmartDashboard.putNumber("bl offset", bl.moduleOffset);
+        SmartDashboard.putNumber("br offset", br.moduleOffset);
 	}
 }
