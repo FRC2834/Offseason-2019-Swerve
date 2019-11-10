@@ -66,7 +66,7 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
 
         driveEncoder = new CANEncoder(drive);
 
-        drive.setOpenLoopRampRate(0.5);
+        drive.setOpenLoopRampRate(0.1);
         drive.setSmartCurrentLimit(50);
 
         this.moduleZero = moduleZero;

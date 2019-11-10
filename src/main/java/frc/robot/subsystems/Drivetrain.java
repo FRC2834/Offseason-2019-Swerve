@@ -35,10 +35,11 @@ public class Drivetrain extends Subsystem implements RobotMap, DashboardSender {
 
     public Drivetrain() {
         // Motor instantiation
-        fr = new SwerveModule(frontRightDrive, frontRightTurn, -3868);
-        fl = new SwerveModule(frontLeftDrive, frontLeftTurn, -279);
-        bl = new SwerveModule(backLeftDrive, backLeftTurn, -3222);
-        br = new SwerveModule(backRightDrive, backRightTurn, -1546);
+        fr = new SwerveModule(frontRightDrive, frontRightTurn, -101);
+        fl = new SwerveModule(frontLeftDrive, frontLeftTurn, -302);
+        bl = new SwerveModule(backLeftDrive, backLeftTurn, -3210);
+        br = new SwerveModule(backRightDrive, backRightTurn, -2248
+        );
 
         fr.configureModule(DRIVE_ENCODER_TICKS, TURN_ENCODER_TICKS, WHEEL_BASE, TRACK_WIDTH);
         fl.configureModule(DRIVE_ENCODER_TICKS, TURN_ENCODER_TICKS, WHEEL_BASE, TRACK_WIDTH);
