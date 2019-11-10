@@ -38,8 +38,7 @@ public class Drivetrain extends Subsystem implements RobotMap, DashboardSender {
         fr = new SwerveModule(frontRightDrive, frontRightTurn, -101);
         fl = new SwerveModule(frontLeftDrive, frontLeftTurn, -302);
         bl = new SwerveModule(backLeftDrive, backLeftTurn, -3210);
-        br = new SwerveModule(backRightDrive, backRightTurn, -2248
-        );
+        br = new SwerveModule(backRightDrive, backRightTurn, -2248);
 
         fr.configureModule(DRIVE_ENCODER_TICKS, TURN_ENCODER_TICKS, WHEEL_BASE, TRACK_WIDTH);
         fl.configureModule(DRIVE_ENCODER_TICKS, TURN_ENCODER_TICKS, WHEEL_BASE, TRACK_WIDTH);
