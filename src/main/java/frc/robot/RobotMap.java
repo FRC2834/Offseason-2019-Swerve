@@ -25,25 +25,25 @@ public interface RobotMap {
     // public static int rangefinderModule = 1;
 
     // Motor IDs
-    public static int frontRightDrive = 1;
-    public static int frontRightTurn = 5;
+    public static final int frontRightDrive = 1;
+    public static final int frontRightTurn = 5;
 
-    public static int frontLeftDrive = 2;
-    public static int frontLeftTurn = 6;
+    public static final int frontLeftDrive = 2;
+    public static final int frontLeftTurn = 6;
 
-    public static int backLeftDrive = 3;
-    public static int backLeftTurn = 7;
+    public static final int backLeftDrive = 3;
+    public static final int backLeftTurn = 7;
 
-    public static int backRightDrive = 4;
-    public static int backRightTurn = 8;
+    public static final int backRightDrive = 4;
+    public static final int backRightTurn = 8;
 
     // Motor Encoder Ticks
-    public static double DRIVE_ENCODER_TICKS = 40.0;
-    public static double TURN_ENCODER_TICKS = 4096.0;
+    public static final double DRIVE_ENCODER_TICKS = 40.0;
+    public static final double TURN_ENCODER_TICKS = 4096.0;
 
     // Chassis Dimensions
-    public static double TRACK_WIDTH = 22.625;
-    public static double WHEEL_BASE = 22.625;
+    public static final double TRACK_WIDTH = 22.625;
+    public static final double WHEEL_BASE = 22.625;
 
     /**
 	 * Which PID slot to pull gains from. Starting 2018, you can choose from
@@ -72,12 +72,6 @@ public interface RobotMap {
     
     static final double fGain = (nominalTurnOutputPercent * 1023) / encoderTickAtNominal;
 
-    // static final double pGain = 0.2;
-    // static final double error = 90;
-    // static final double pTerm = (pGain * 1023) / error;
-
-    // static final double dGain = 10*pTerm;
-
     static final double pGain = 0.2;
     static final double error = 193;
     static final double pTerm = (pGain * 1023) / error;
@@ -88,5 +82,9 @@ public interface RobotMap {
 	 * Gains used in Motion Magic, to be adjusted accordingly
      * Gains(kp, ki, kd, kf, izone, peak output);
      */
-    static final Gains kGains = new Gains(pTerm, 0.005, dGain, fGain, 120, 0.0);
+    public static final Gains kGains = new Gains(pTerm, 0.005, dGain, fGain, 120, 0.0);
+
+    // Steering module cruise velocity and acceleration
+    public static final int MODULE_CRUISE_VELOCITY = 1245;
+    public static final int MODULE_ACCELERATION = 3735;
 }

@@ -53,9 +53,11 @@ public class Drive extends Command {
       RCW = 0;
     }
 
-    double[][] vectors = SwerveModule.calculate(-FWD*0.95, 
-    STR*0.95, 
-    RCW*0.95, 
+    double speedMultiplier = 0.25;
+
+    double[][] vectors = SwerveModule.calculate(-FWD*speedMultiplier, 
+    STR*speedMultiplier, 
+    RCW*speedMultiplier, 
     Robot.drivetrain.gyro.getYaw(), 
     Robot.drivetrain.fr.getBaseLength(), 
     Robot.drivetrain.fr.getBaseWidth());

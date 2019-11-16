@@ -26,31 +26,30 @@ import java.lang.Math;
  * Add your docs here.
  */
 public class SwerveModule extends Subsystem implements RobotMap, DashboardSender {
-    // Put methods for controlling this subsystem
-    // here. Call these from Commands.
-
     // Motors
     public CANSparkMax drive;
     public TalonSRX turn;
     
-    // Drive Encoder
+    // Drive encoder
     public CANEncoder driveEncoder;
 
-    // Encoder Ticks
+    // Encoder ticks for each motor
     private double driveEncoderTicks;
     private double turnEncoderTicks;
 
-    // Module Offset
+    // Steering motor zero in encoder ticks
+    private double moduleZero;
+
+    // Module offset from steering motor zero position
     public double moduleOffset;
 
-    // Module Zeroed?
+    // Module zeroed?
     public boolean zeroed;
-
-    //
-    private double moduleZero;
 
     // Wheelbase dimensions
     private double baseLength;
+
+    // Trackwidth dimensions
     private double baseWidth;
 
     /**
@@ -58,41 +57,45 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
      * 
      * @param driveID The ID for the drive motor
      * @param turnID The ID for the steering motor
-     * @param moduleZero Value of analog encoder at module default position
+     * @param moduleZero Value of analog encoder at steering module forward position (May need to flip the sign based on the sensor phase)
      */
     public SwerveModule(int driveID, int turnID, int moduleZero) {
+        // Instantiate motors with CAN ID
         drive = new CANSparkMax(driveID, MotorType.kBrushless);
         turn = new TalonSRX(turnID);
 
-        driveEncoder = new CANEncoder(drive);
-
-        drive.setOpenLoopRampRate(0.1);
-        drive.setSmartCurrentLimit(50);
-
+        // Instantiate module zero
         this.moduleZero = moduleZero;
         zeroed = false;
+
+        // Instantiate drive encoder
+        driveEncoder = new CANEncoder(drive);
+
+        // Configure drive motor
+        drive.setOpenLoopRampRate(0.1);
+        drive.setSmartCurrentLimit(50);
 
         // Reset the encoder settings
         turn.configFactoryDefault();
         
-        // Select encoder to use
+        // Select absolute encoder to use
         turn.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, kPIDLoopIdx, kTimeoutMs);
 
         // Set sensor and motor direction
         turn.setSensorPhase(true);
         turn.setInverted(false);
 
-        /* Set relevant frame periods to be at least as fast as periodic rate */
+        // Set relevant frame periods to be at least as fast as periodic rate
 		turn.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
 		turn.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, kTimeoutMs);
 
-		/* Set the peak and nominal outputs */
+		// Set the peak and nominal outputs
 		turn.configNominalOutputForward(0, kTimeoutMs);
 		turn.configNominalOutputReverse(0, kTimeoutMs);
 		turn.configPeakOutputForward(1, kTimeoutMs);
 		turn.configPeakOutputReverse(-1, kTimeoutMs);
 
-		/* Set Motion Magic gains in slot0 - see documentation */
+		// Set Motion Magic gains in slot0
 		turn.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
 		turn.config_kF(kSlotIdx, kGains.kF, kTimeoutMs);
 		turn.config_kP(kSlotIdx, kGains.kP, kTimeoutMs);
@@ -100,18 +103,13 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
         turn.config_kD(kSlotIdx, kGains.kD, kTimeoutMs);
         turn.config_IntegralZone(kSlotIdx, kGains.kIzone, kTimeoutMs);
 
-		/* Set acceleration and vcruise velocity - see documentation */
-		turn.configMotionCruiseVelocity(1245, kTimeoutMs);
-        turn.configMotionAcceleration(3735, kTimeoutMs);
-
-        /* Zero the sensor */
-        //turn.setSelectedSensorPosition(0, kPIDLoopIdx, kTimeoutMs);
-
-        
+		// Set acceleration and vcruise velocity
+		turn.configMotionCruiseVelocity(MODULE_CRUISE_VELOCITY, kTimeoutMs);
+        turn.configMotionAcceleration(MODULE_ACCELERATION, kTimeoutMs);  
     }
 
     /**
-     * Sets the modules encoder tick configuration
+     * Configure module parameters
      * 
      * @param driveEncoderTicks Number of ticks per wheel revolution
      * @param turnEncoderTicks Number of ticks per steering module revolution
@@ -126,18 +124,21 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
     }
 
     public double getBaseLength() { return baseLength; }
+
     public double getBaseWidth() { return baseWidth; }
 
-    /* Zero the encoder */
-    // public void zeroEncoder() {
-    //     turn.setSelectedSensorPosition(0, kPIDLoopIdx, kTimeoutMs);
-    // }
-
+    /**
+     * Gest the distance the module is from the zero in ticks
+     */
     public void calculateOffset() {
         moduleOffset = turn.getSelectedSensorPosition() - moduleZero;
     }
 
-    // Get encoder position
+    /**
+     * Returns the current position of the encoder in ticks
+     * 
+     * @return The position of the encoder in ticks
+     */
     public int getEncoderPosition() {
         return turn.getSelectedSensorPosition();
     }
@@ -151,10 +152,10 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
      * @param gyroAngle Gyro angle used for field-centric swerve drive
      * @param baseLength Length of wheelbase
      * @param baseWidth Width of wheelbase
-     * @return Returns a 2d array containing the speed and angle for each module
+     * @return Returns a 2d array containing the speed and angle in degrees for each module
      */
     public static double[][] calculate(double FWD, double STR, double RCW, double gyroAngle, double baseLength, double baseWidth) {
-        // Makes the command field-centric
+        // Maks the command field-centric
         double temp = FWD * Math.cos(Math.toRadians(gyroAngle)) + STR * Math.sin(Math.toRadians(gyroAngle));
         STR = -FWD * Math.sin(Math.toRadians(gyroAngle)) + STR * Math.cos(Math.toRadians(gyroAngle));
         FWD = temp;
@@ -206,6 +207,13 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
         return output;
     }
 
+    /**
+     * Returns the nearest coterminal zero in ticks
+     * 
+     * @param currentPosition The current position of the steering module in ticks
+     * @param moduleZero The modules zero
+     * @return The nearest coterminal zero in ticks
+     */
     public double getNearestCoterminalZero(int currentPosition, double moduleZero) {
         double coterminalZero = moduleZero;
         if(currentPosition > 0) {
@@ -220,6 +228,10 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
         return coterminalZero;
     }
 
+    /**
+     * Moves the motor to the nearest coterminal zero
+     * Call before running the robot
+     */
     public void zeroModule() {
         zeroed = false;
         do {
@@ -228,6 +240,12 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
         zeroed = true;
     }
 
+    /**
+     * Moves the steering module to a target
+     * 
+     * @param speed The speed at which to move the drive motor
+     * @param targetAngle The target angle of the steering module in degrees
+     */
     public void move(double speed, double targetAngle) {
 
         // Derive the alternate target angle
@@ -247,6 +265,7 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
             currentAngle += 360;
         }
         
+        // Calculate shortest angle to target
         double delta1 = 0;
         double delta2 = 0;
         if(currentAngle > targetAngle) {
@@ -289,6 +308,7 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
             altDelta = delta4;
         }
 
+        // Moves the drive motor and steering module if the module has been zeroed
         if(true) {
             if(Math.abs(delta) < Math.abs(altDelta)) {
                 double ticksDelta = delta * (turnEncoderTicks / 360);
@@ -311,16 +331,6 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
                 //turn.set(ControlMode.MotionMagic, moduleZero);
             }
         }
-
-        SmartDashboard.putNumber("Delta1", delta1);
-        SmartDashboard.putNumber("Delta2", delta2);
-        SmartDashboard.putNumber("Delta3", delta3);
-        SmartDashboard.putNumber("Delta4", delta4);
-        SmartDashboard.putNumber("Current Angle", currentAngle);
-        SmartDashboard.putNumber("Target Angle", targetAngle);
-        SmartDashboard.putNumber("Target Angle2", targetAngle2);
-        SmartDashboard.putNumber("C + Target Angle", 360 - currentAngle + targetAngle);
-        SmartDashboard.putNumber("C + Target Angle2", 360 - currentAngle + targetAngle2);
     }
 
     @Override
