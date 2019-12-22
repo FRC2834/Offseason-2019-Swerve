@@ -93,7 +93,9 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
 		turn.configNominalOutputForward(0, kTimeoutMs);
 		turn.configNominalOutputReverse(0, kTimeoutMs);
 		turn.configPeakOutputForward(1, kTimeoutMs);
-		turn.configPeakOutputReverse(-1, kTimeoutMs);
+        turn.configPeakOutputReverse(-1, kTimeoutMs);
+        
+        turn.configPeakCurrentLimit(5, kTimeoutMs);
 
 		// Set Motion Magic gains in slot0
 		turn.selectProfileSlot(kSlotIdx, kPIDLoopIdx);

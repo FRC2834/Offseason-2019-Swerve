@@ -72,7 +72,7 @@ public interface RobotMap {
     
     static final double fGain = (nominalTurnOutputPercent * 1023) / encoderTickAtNominal;
 
-    static final double pGain = 0.2;
+    static final double pGain = 0.23;
     static final double error = 193;
     static final double pTerm = (pGain * 1023) / error;
 

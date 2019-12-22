@@ -51,13 +51,20 @@ public class Drive extends Command {
     double RCW = Robot.m_oi.driver.getRawAxis(4);
     if(Math.abs(RCW) < 0.1) {
       RCW = 0;
+    } else {
+      if(RCW > 0) {
+        RCW = Math.pow(RCW, 2);
+      } else {
+        RCW = -Math.pow(RCW, 2);
+      }
     }
 
-    double speedMultiplier = 0.25;
+    double speedMultiplier = 0.95;
+    double turnMultiplier = 0.95;
 
     double[][] vectors = SwerveModule.calculate(-FWD*speedMultiplier, 
     STR*speedMultiplier, 
-    RCW*speedMultiplier, 
+    RCW*turnMultiplier, 
     Robot.drivetrain.gyro.getYaw(), 
     Robot.drivetrain.fr.getBaseLength(), 
     Robot.drivetrain.fr.getBaseWidth());
