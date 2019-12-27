@@ -38,12 +38,16 @@ public interface RobotMap {
     public static final int backRightTurn = 8;
 
     // Motor Encoder Ticks
-    public static final double DRIVE_ENCODER_TICKS = 40.0;
+    public static final double DRIVE_ENCODER_TICKS = 188.4;
     public static final double TURN_ENCODER_TICKS = 4096.0;
 
-    // Chassis Dimensions
+    // Chassis Dimensions in Inches
     public static final double TRACK_WIDTH = 22.625;
     public static final double WHEEL_BASE = 22.625;
+
+    // Chassis Dimensions in Meters
+    public static final double TRACK_WIDTH_METERS = TRACK_WIDTH / 39.37;
+    public static final double WHEEL_BASE_METERS = WHEEL_BASE / 39.37;
 
     /**
 	 * Which PID slot to pull gains from. Starting 2018, you can choose from

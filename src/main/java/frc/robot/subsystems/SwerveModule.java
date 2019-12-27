@@ -146,6 +146,15 @@ public class SwerveModule extends Subsystem implements RobotMap, DashboardSender
     }
 
     /**
+     * Returns the current position of the drive encoder
+     * 
+     * @return The position of the drive encoder
+     */
+    public double getDriveEncoderPosition() {
+        return driveEncoder.getPosition();
+    }
+
+    /**
      * Calculates module angles and speed
      * 
      * @param FWD Joystick y input

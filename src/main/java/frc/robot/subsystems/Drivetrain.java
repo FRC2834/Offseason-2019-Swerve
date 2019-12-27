@@ -11,6 +11,12 @@ import com.kauailabs.navx.frc.AHRS;
 
 import frc.robot.RobotMap;
 import frc.robot.commands.Drive;
+import jaci.pathfinder.Pathfinder;
+import jaci.pathfinder.Trajectory;
+import jaci.pathfinder.Waypoint;
+import jaci.pathfinder.followers.EncoderFollower;
+import jaci.pathfinder.modifiers.SwerveModifier;
+import jaci.pathfinder.modifiers.SwerveModifier.Mode;
 import frc.robot.DashboardSender;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -33,6 +39,9 @@ public class Drivetrain extends Subsystem implements RobotMap, DashboardSender {
     // Gyro declaration
     public AHRS gyro;
 
+    // Trajectory config
+    Trajectory.Config config;
+
     public Drivetrain() {
         // Motor instantiation
         fr = new SwerveModule(frontRightDrive, frontRightTurn, -2132+2048);
@@ -48,6 +57,9 @@ public class Drivetrain extends Subsystem implements RobotMap, DashboardSender {
         // Gyro instantiation
         gyro = new AHRS(SerialPort.Port.kMXP);
         gyro.zeroYaw();
+
+        // Trajectory config instantation
+        config = new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, 0.01, max_velocity, max_acceleration, max_jerk);
     }
 
     public void zeroGyro() {
@@ -60,6 +72,42 @@ public class Drivetrain extends Subsystem implements RobotMap, DashboardSender {
 
     public void controlModule(SwerveModule module, double speed, double angle) {
         module.move(speed, angle);
+    }
+
+    public SwerveModifier generateSwerveTrajectory(Waypoint[] waypoints) {
+        // Generate trajectory
+        Trajectory trajectory = Pathfinder.generate(waypoints, config);
+        // Modify for swerve
+        SwerveModifier.Mode mode = SwerveModifier.Mode.SWERVE_DEFAULT;
+        SwerveModifier modifier = new SwerveModifier(trajectory);
+        modifier.modify(WHEEL_BASE_METERS, TRACK_WIDTH_METERS, mode);
+
+        return modifier;
+    }
+
+    public EncoderFollower[] getFollowers(SwerveModifier modifier) {
+        // Get followers
+        EncoderFollower frFollower = new EncoderFollower(modifier.getFrontRightTrajectory());
+        frFollower.configureEncoder(fr.getDriveEncoderPosition(), 188.4, wheel_diameter);
+        frFollower.configurePIDVA(kp, ki, kd, kv, ka);
+
+        EncoderFollower flFollower = new EncoderFollower(modifier.getFrontLeftTrajectory());
+        flFollower.configureEncoder(fl.getDriveEncoderPosition(), 188.4, wheel_diameter);
+        flFollower.configurePIDVA(kp, ki, kd, kv, ka);
+
+        EncoderFollower blFollower = new EncoderFollower(modifier.getBackLeftTrajectory());
+        blFollower.configureEncoder(bl.getDriveEncoderPosition(), 188.4, wheel_diameter);
+        blFollower.configurePIDVA(kp, ki, kd, kv, ka);
+
+        EncoderFollower brFollower = new EncoderFollower(modifier.getBackRightTrajectory());
+        brFollower.configureEncoder(br.getDriveEncoderPosition(), 188.4, wheel_diameter);
+        brFollower.configurePIDVA(kp, ki, kd, kv, ka);
+
+        EncoderFollower[] followers = new EncoderFollower[] {
+            frFollower, flFollower, blFollower, brFollower
+        };
+
+        return followers;
     }
 
     @Override
